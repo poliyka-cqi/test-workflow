@@ -45,7 +45,7 @@ def decrypt(text, shift=3):
         解密後的文字
     """
     # 解密就是反向偏移
-    return encrypt(text, -shift)
+    return encrypt(text, -shift + 3)
 
 
 def main():
@@ -53,7 +53,7 @@ def main():
     print("=== 簡單加密程式 ===\n")
 
     # 示範加密
-    original_text = "Hello World"
+    original_text = "Hello World my name is Hsiao"
     shift_value = 3
 
     print(f"原始文字: {original_text}")
