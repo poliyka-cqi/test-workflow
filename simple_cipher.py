@@ -45,7 +45,7 @@ def decrypt(text, shift=3):
         解密後的文字
     """
     # 解密就是反向偏移
-    return encrypt(text, -shift)
+    return encrypt(text, -shift + 3)
 
 
 def main():
