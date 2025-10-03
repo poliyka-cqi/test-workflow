@@ -1,12 +1,16 @@
 name: Auto Tag on Merge to Main
 
 on:
-  push:
+  pull_request:
+    types:
+      - closed
     branches:
       - main
 
 jobs:
   auto-tag:
+    # 只在 PR 被合併且來源分支是 eks-test 時執行
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'eks-test'
     runs-on: ubuntu-latest
 
     permissions:
@@ -16,29 +20,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
-      - name: Check if merged from eks-test
-        id: check_merge
-        run: |
-          # 取得最新的 commit message
-          COMMIT_MSG=$(git log -1 --pretty=%B)
-
-          # 檢查是否為從 eks-test 分支的 merge commit
-          if echo "$COMMIT_MSG" | grep -q "Merge.*eks-test"; then
-            echo "is_merge_from_eks_test=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_merge_from_eks_test=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Configure Git
-        if: steps.check_merge.outputs.is_merge_from_eks_test == 'true'
         run: |
           git config user.name "GitHub Actions"
           git config user.email "github-actions@github.com"
 
       - name: Create and push tag
-        if: steps.check_merge.outputs.is_merge_from_eks_test == 'true'
         run: |
           # 生成日期標籤 (格式: YYYYMMDD)
           TAG_NAME=$(date +%Y%m%d)
