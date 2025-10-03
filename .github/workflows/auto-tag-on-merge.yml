@@ -9,8 +9,6 @@ on:
 
 jobs:
   auto-tag:
-    # 只在 PR 被合併且來源分支是 eks-test 時執行
-    if: github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'eks-test'
     runs-on: ubuntu-latest
 
     permissions:
