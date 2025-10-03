@@ -41,10 +41,10 @@ jobs:
       - name: Delete remote dev branch
         run: git push origin --delete eks-dev || echo "dev branch did not exist, skipping deletion."
 
-      # 第四步：從 eks-test 建立新的 dev 分支並推送
-      - name: Create new dev branch from eks-test
+      # 第四步：從 develop 建立新的 dev 分支並推送
+      - name: Create new dev branch from develop
         run: |
-          # 從遠端最新的 eks-test 建立一個本地的 dev 分支
-          git checkout -b eks-dev origin/eks-test
+          # 從遠端最新的 develop 建立一個本地的 dev 分支
+          git checkout -b eks-dev origin/develop
           # 強制推送本地的 dev 分支到遠端，覆蓋可能存在的舊紀錄
           git push -u origin eks-dev --force
