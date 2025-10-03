@@ -1,0 +1,50 @@
+# .github/workflows/sync-dev-branch.yml
+
+name: 每日同步 dev 分支 (Daily Sync dev Branch)
+
+on:
+  # 1. 排程觸發
+  schedule:
+    # cron 語法使用 UTC 時間。台灣時間 (CST, UTC+8) 的 00:00 是 UTC 時間的前一天 16:00。
+    # 所以設定 '0 16 * * *' 會在每天 UTC 16:00 (台灣時間 00:00) 執行。
+    - cron: '0 16 * * *'
+
+  # 2. 手動觸發 (方便你立即測試)
+  # 你可以在 Actions -> Daily Sync dev Branch 頁面點擊 "Run workflow" 來手動執行。
+  workflow_dispatch:
+
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+
+    # 賦予 job 寫入 repository 的權限，這樣才能推送 (push) 分支
+    permissions:
+      contents: write
+
+    steps:
+      # 第一步：Checkout 專案程式碼
+      # fetch-depth: 0 代表獲取所有歷史紀錄和所有分支，確保 git 操作的完整性
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 第二步：設定 Git 使用者資訊
+      # 讓這次的 push 操作在紀錄中顯示是由 GitHub Actions 執行的
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "github-actions@github.com"
+
+      # 第三步：刪除遠端的舊 dev 分支
+      # `|| true` 可以確保即使 dev 分支不存在 (例如首次執行)，這個步驟也不會因為錯誤而中斷整個流程
+      - name: Delete remote dev branch
+        run: git push origin --delete eks-dev || echo "dev branch did not exist, skipping deletion."
+
+      # 第四步：從 eks-test 建立新的 dev 分支並推送
+      - name: Create new dev branch from eks-test
+        run: |
+          # 從遠端最新的 eks-test 建立一個本地的 dev 分支
+          git checkout -b eks-dev origin/eks-test
+          # 強制推送本地的 dev 分支到遠端，覆蓋可能存在的舊紀錄
+          git push -u origin eks-dev --force
